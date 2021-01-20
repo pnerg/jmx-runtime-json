@@ -19,6 +19,10 @@ import org.specs2.mutable.Specification
 
 class JMXJsonBuilderSpec extends Specification {
 
+  implicit class PimpedString(s: String) {
+    def parseJson: JsonObject = Json.parse(s).asObject()
+  }
+
   implicit class PimpedJsonObject(json: JsonObject) {
     def getLong(name: String) = {
       getNonNull(name).asLong()
@@ -45,54 +49,104 @@ class JMXJsonBuilderSpec extends Specification {
   }
 
   "withRuntime" >> {
-    val builder = new JMXJsonBuilder().withRuntimeInfo()
+    val builder = JMXJsonBuilder.apply().withRuntimeInfo()
     "must produce 'asJson' with the expected contents" >> {
       assertRuntimeContents(builder.asJson())
     }
     "must produce 'toString' with the expected contents" >> {
-      assertRuntimeContents(builder.toString)
+      assertRuntimeContents(builder.toString.parseJson)
     }
     "must produce 'prettyPrint' with the expected contents" >> {
       println(builder.prettyPrint())
-      assertRuntimeContents(builder.prettyPrint())
+      assertRuntimeContents(builder.prettyPrint.parseJson)
     }
   }
 
   "withThreadInfo" >> {
-    val builder = new JMXJsonBuilder().withThreadInfo()
+    val builder = JMXJsonBuilder.apply().withThreadInfo()
     "must produce a 'asJson' with the expected contents" >> {
       assertThreadContents(builder.asJson())
     }
     "must produce 'toString' with the expected contents" >> {
-      assertThreadContents(builder.toString)
+      assertThreadContents(builder.toString.parseJson)
     }
     "must produce 'prettyPrint' with the expected contents" >> {
       println(builder.prettyPrint())
-      assertThreadContents(builder.prettyPrint)
+      assertThreadContents(builder.prettyPrint.parseJson)
     }
   }
 
-  private def assertRuntimeContents(string: String): MatchResult[JsonValue] = assertRuntimeContents(Json.parse(string).asObject())
-
-  private def assertRuntimeContents(json: JsonObject): MatchResult[JsonValue] = {
-    val runtime = json.getObject("runtime")
-    runtime mustHaveAttribute "vm-vendor"
-    runtime mustHaveAttribute "vm-name"
-    runtime mustHaveAttribute "vm-version"
-    runtime mustHaveAttribute "uptime"
-    runtime mustHaveAttribute "start-time"
-    runtime mustHaveAttribute "input-arguments"
-    runtime mustHaveAttribute "classpath"
+  "withMemoryInfo" >> {
+    val builder = JMXJsonBuilder.apply().withMemoryInfo()
+    "must produce a 'asJson' with the expected contents" >> {
+      assertMemoryContents(builder.asJson())
+    }
+    "must produce 'toString' with the expected contents" >> {
+      assertMemoryContents(builder.toString.parseJson)
+    }
+    "must produce 'prettyPrint' with the expected contents" >> {
+      println(builder.prettyPrint())
+      assertMemoryContents(builder.prettyPrint.parseJson)
+    }
   }
 
-  private def assertThreadContents(s: String): MatchResult[JsonValue] = assertThreadContents(Json.parse(s).asObject())
+  "allInfo" >> {
+    val builder = JMXJsonBuilder.allInfo()
+
+    def assertAllInfo(json: JsonObject): MatchResult[JsonValue] = {
+      assertMemoryContents(json)
+      assertRuntimeContents(json)
+      assertThreadContents(json)
+    }
+
+    "must produce a 'asJson' with the expected contents" >> {
+      assertAllInfo(builder.asJson())
+    }
+    "must produce 'toString' with the expected contents" >> {
+      assertAllInfo(builder.toString.parseJson)
+    }
+    "must produce 'prettyPrint' with the expected contents" >> {
+      println(builder.prettyPrint())
+      assertAllInfo(builder.prettyPrint.parseJson)
+    }
+  }
+
+
+  private def assertRuntimeContents(json: JsonObject): MatchResult[JsonValue] = {
+    val obj = json.getObject("runtime")
+    obj mustHaveAttribute "vm-vendor"
+    obj mustHaveAttribute "vm-name"
+    obj mustHaveAttribute "vm-version"
+    obj mustHaveAttribute "uptime"
+    obj mustHaveAttribute "start-time"
+    obj mustHaveAttribute "input-arguments"
+    obj mustHaveAttribute "classpath"
+  }
 
   private def assertThreadContents(json: JsonObject): MatchResult[JsonValue] = {
-    val runtime = json.getObject("thread")
-    runtime mustHaveAttribute "current-thread-count"
-    runtime mustHaveAttribute "daemon-thread-count"
-    runtime mustHaveAttribute "peak-thread-count"
-    runtime mustHaveAttribute "threads"
+    val obj = json.getObject("thread")
+    obj mustHaveAttribute "current-thread-count"
+    obj mustHaveAttribute "daemon-thread-count"
+    obj mustHaveAttribute "peak-thread-count"
+    obj mustHaveAttribute "threads"
+  }
+
+  private def assertMemoryContents(json: JsonObject): MatchResult[JsonValue] = {
+    val obj = json.getObject("memory")
+    obj mustHaveAttribute "heap"
+    obj mustHaveAttribute "non-heap"
+
+    val heap = obj.getObject("heap")
+    heap mustHaveAttribute "init"
+    heap mustHaveAttribute "committed"
+    heap mustHaveAttribute "max"
+    heap mustHaveAttribute "used"
+
+    val nonheap = obj.getObject("non-heap")
+    nonheap mustHaveAttribute "init"
+    nonheap mustHaveAttribute "committed"
+    nonheap mustHaveAttribute "max"
+    nonheap mustHaveAttribute "used"
   }
 
 }

@@ -19,14 +19,77 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.WriterConfig;
 
 import java.io.File;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
+import java.lang.management.*;
 
+/**
+ * Generates Json formatted runtime information extracted from JMX.
+ *
+ * <p>The class offers a builder pattern functionality allowing the user to generate a json with the
+ * desired information.
+ *
+ * <p>E.g.
+ *
+ * <pre>
+ *     JMXJsonBuilder.apply().withRuntimeInfo().prettyPrint();
+ * </pre>
+ *
+ * or for convenience one can let the class produce everything it supports
+ *
+ * <pre>
+ *     JMXJsonBuilder.allInfo().prettyPrint();
+ * </pre>
+ */
 public class JMXJsonBuilder {
   private final JsonObject builderJson = Json.object();
 
+  private JMXJsonBuilder() {}
+
+  /**
+   * Creates an empty instance of the builder.
+   *
+   * @return
+   */
+  public static JMXJsonBuilder apply() {
+    return new JMXJsonBuilder();
+  }
+
+  /**
+   * Creates an instance and adds everything supported by this class.
+   *
+   * @return The created and populated instance
+   * @see #withMemoryInfo()
+   * @see #withRuntimeInfo()
+   * @see #withThreadInfo()
+   */
+  public static JMXJsonBuilder allInfo() {
+    return apply().withMemoryInfo().withRuntimeInfo().withThreadInfo();
+  }
+
+  /**
+   * Adds runtime information extracted from the 'RuntimeMXBean'
+   *
+   * <pre>
+   *   "runtime": {
+   *     "vm-name": "OpenJDK 64-Bit Server VM",
+   *     "vm-vendor": "AdoptOpenJDK",
+   *     "vm-version": "11.0.9+11",
+   *     "uptime": 12573,
+   *     "start-time": 1611129944546,
+   *     "input-arguments": [
+   *       "-Dfile.encoding=UTF-8",
+   *       "-Xms1024m",
+   *       "-Xmx1024m",
+   *       "-Xss4M",
+   *       "-XX:ReservedCodeCacheSize=128m"
+   *     ],
+   *     "classpath": [
+   *       "/opt/sbt/bin/sbt-launch.jar"
+   *     ]
+   *   }
+   * </pre>
+   *
+   * @return itself
+   */
   public JMXJsonBuilder withRuntimeInfo() {
     RuntimeMXBean mbean = ManagementFactory.getRuntimeMXBean();
 
@@ -44,6 +107,31 @@ public class JMXJsonBuilder {
     return this;
   }
 
+  /**
+   * Adds runtime information extracted from the 'ThreadMXBean'.
+   *
+   * <pre>
+   *  "thread": {
+   *     "current-thread-count": 46,
+   *     "daemon-thread-count": 25,
+   *     "peak-thread-count": 49,
+   *     "threads": [
+   *       {
+   *         "name": "main",
+   *         "id": 1,
+   *         "blocked-count": 223,
+   *         "blocked-time": -1,
+   *         "waited-count": 665,
+   *         "waited-time": -1,
+   *         "state": "WAITING"
+   *       },
+   *       ...
+   *       ]
+   * }
+   * </pre>
+   *
+   * @return itself
+   */
   public JMXJsonBuilder withThreadInfo() {
     ThreadMXBean mbean = ManagementFactory.getThreadMXBean();
 
@@ -71,14 +159,77 @@ public class JMXJsonBuilder {
     return this;
   }
 
+  /**
+   * Adds runtime information extracted from the 'MemoryMXBean'
+   *
+   * <pre>
+   *   "memory": {
+   *     "heap": {
+   *       "init": 1073741824,
+   *       "committed": 1073741824,
+   *       "max": 17179869184,
+   *       "used": 4194304
+   *     },
+   *     "non-heap": {
+   *       "init": 7667712,
+   *       "committed": 32374784,
+   *       "max": -1,
+   *       "used": 28859904
+   *     }
+   *   }
+   * </pre>
+   *
+   * @return itself
+   */
+  public JMXJsonBuilder withMemoryInfo() {
+    MemoryMXBean mbean = ManagementFactory.getMemoryMXBean();
+
+    JsonObject jo = Json.object();
+    jo.add("heap", memoryAsJson(mbean.getHeapMemoryUsage()));
+    jo.add("non-heap", memoryAsJson(mbean.getNonHeapMemoryUsage()));
+    builderJson.add("memory", jo);
+    return this;
+  }
+
+  /**
+   * Converts the provided memory usage info into a Json object
+   *
+   * @param mem
+   * @return
+   */
+  private JsonObject memoryAsJson(MemoryUsage mem) {
+    JsonObject json = Json.object();
+    json.add("init", mem.getInit());
+    json.add("committed", mem.getCommitted());
+    json.add("max", mem.getMax());
+    json.add("used", mem.getUsed());
+    return json;
+  }
+
+  /**
+   * Returns the built json object
+   *
+   * @return The json object
+   */
   public JsonObject asJson() {
     return builderJson;
   }
 
+  /**
+   * Returns the built json pretty printed
+   *
+   * @return The json
+   */
   public String prettyPrint() {
     return builderJson.toString(WriterConfig.PRETTY_PRINT);
   }
 
+  /**
+   * Returns the built json plain printed
+   *
+   * @return The json
+   */
+  @Override
   public String toString() {
     return builderJson.toString();
   }
