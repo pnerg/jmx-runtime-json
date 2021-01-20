@@ -47,7 +47,7 @@ public class JMXJsonBuilder {
   /**
    * Creates an empty instance of the builder.
    *
-   * @return
+   * @return The created empty instance
    */
   public static JMXJsonBuilder apply() {
     return new JMXJsonBuilder();
