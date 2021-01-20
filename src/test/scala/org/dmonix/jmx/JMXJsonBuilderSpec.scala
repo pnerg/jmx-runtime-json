@@ -90,6 +90,20 @@ class JMXJsonBuilderSpec extends Specification {
     }
   }
 
+  "withClassLoadingInfo" >> {
+    val builder = JMXJsonBuilder.apply().withClassLoadingInfo()
+    "must produce a 'asJson' with the expected contents" >> {
+      assertClassLoadingContents(builder.asJson())
+    }
+    "must produce 'toString' with the expected contents" >> {
+      assertClassLoadingContents(builder.toString.parseJson)
+    }
+    "must produce 'prettyPrint' with the expected contents" >> {
+      println(builder.prettyPrint())
+      assertClassLoadingContents(builder.prettyPrint.parseJson)
+    }
+  }
+
   "allInfo" >> {
     val builder = JMXJsonBuilder.allInfo()
 
@@ -97,6 +111,7 @@ class JMXJsonBuilderSpec extends Specification {
       assertMemoryContents(json)
       assertRuntimeContents(json)
       assertThreadContents(json)
+      assertClassLoadingContents(json)
     }
 
     "must produce a 'asJson' with the expected contents" >> {
@@ -147,6 +162,13 @@ class JMXJsonBuilderSpec extends Specification {
     nonheap mustHaveAttribute "committed"
     nonheap mustHaveAttribute "max"
     nonheap mustHaveAttribute "used"
+  }
+
+  private def assertClassLoadingContents(json: JsonObject): MatchResult[JsonValue] = {
+    val obj = json.getObject("class-loading")
+    obj mustHaveAttribute "loaded-classes"
+    obj mustHaveAttribute "total-loaded-classes"
+    obj mustHaveAttribute "unloaded-classes"
   }
 
 }

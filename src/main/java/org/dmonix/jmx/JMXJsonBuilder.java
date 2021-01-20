@@ -57,12 +57,13 @@ public class JMXJsonBuilder {
    * Creates an instance and adds everything supported by this class.
    *
    * @return The created and populated instance
+   * @see #withClassLoadingInfo()
    * @see #withMemoryInfo()
    * @see #withRuntimeInfo()
    * @see #withThreadInfo()
    */
   public static JMXJsonBuilder allInfo() {
-    return apply().withMemoryInfo().withRuntimeInfo().withThreadInfo();
+    return apply().withMemoryInfo().withRuntimeInfo().withThreadInfo().withClassLoadingInfo();
   }
 
   /**
@@ -191,6 +192,30 @@ public class JMXJsonBuilder {
     return this;
   }
 
+  /**
+   * Adds runtime information extracted from the 'ClassLoadingMXBean'
+   *
+   * <pre>
+   *   "class-loading": {
+   *     "loaded-classes": 2527,
+   *     "total-loaded-classes": 2527,
+   *     "unloaded-classes": 0
+   *   }
+   * </pre>
+   *
+   * @return
+   */
+  public JMXJsonBuilder withClassLoadingInfo() {
+    ClassLoadingMXBean mbean = ManagementFactory.getClassLoadingMXBean();
+
+    JsonObject jo = Json.object();
+    jo.add("loaded-classes", mbean.getLoadedClassCount());
+    jo.add("total-loaded-classes", mbean.getTotalLoadedClassCount());
+    jo.add("unloaded-classes", mbean.getUnloadedClassCount());
+
+    builderJson.add("class-loading", jo);
+    return this;
+  }
   /**
    * Converts the provided memory usage info into a Json object
    *
