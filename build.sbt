@@ -28,4 +28,5 @@ jacocoReportSettings := JacocoReportSettings()
       line = 100,
       clazz = 100)
   )
+  .withFormats(JacocoReportFormats.ScalaHTML, JacocoReportFormats.XML)
 
