@@ -1,11 +1,9 @@
-
-
-
+organization  := "org.dmonix"
 name := "jmx-runtime-json"
 version := "1.0.0"
-organization  := "org.dmonix"
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
+javacOptions in (Compile, doc) := Seq("-source", "1.8")
 
 scalaVersion  := "2.13.3" //for unit testing
 
@@ -29,4 +27,3 @@ jacocoReportSettings := JacocoReportSettings()
       clazz = 100)
   )
   .withFormats(JacocoReportFormats.HTML, JacocoReportFormats.XML)
-
