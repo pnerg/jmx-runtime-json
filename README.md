@@ -150,7 +150,7 @@ It is a small no-dependencies library fit for the purpose.
 
 # Download
 
-Both libraries are cross-compiled for Scala 2.11, 2.12 and 2.13.  
+The libraries are plain Java (the Scala part is only unit tests), compiled for compatibility with Java 8+.   
 Simply add the following dependency:
 
 sbt
