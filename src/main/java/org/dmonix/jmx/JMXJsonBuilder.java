@@ -203,7 +203,7 @@ public class JMXJsonBuilder {
    *   }
    * </pre>
    *
-   * @return
+   * @return itself
    */
   public JMXJsonBuilder withClassLoadingInfo() {
     ClassLoadingMXBean mbean = ManagementFactory.getClassLoadingMXBean();

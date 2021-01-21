@@ -148,6 +148,27 @@ Would produce something like:
 This library uses [minimal-json](https://github.com/ralfstx/minimal-json) for managing Json format.  
 It is a small no-dependencies library fit for the purpose.
 
+# Download
+
+Both libraries are cross-compiled for Scala 2.11, 2.12 and 2.13.  
+Simply add the following dependency:
+
+sbt
+
+```
+"org.dmonix" %% "jmx-runtime-json" % [version]
+```
+
+maven
+
+```
+<dependency>
+  <groupId>org.dmonix</groupId>
+  <artifactId>jmx-runtime-json</artifactId>
+  <version>[version]</version>
+</dependency>
+```
+
 # License
 
 The library is licensed under [Apache 2](LICENSE) 
