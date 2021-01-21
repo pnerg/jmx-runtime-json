@@ -156,7 +156,7 @@ Simply add the following dependency:
 sbt
 
 ```
-"org.dmonix" %% "jmx-runtime-json" % [version]
+"org.dmonix" % "jmx-runtime-json" % [version]
 ```
 
 maven
