@@ -1,6 +1,6 @@
 organization  := "org.dmonix"
 name := "jmx-runtime-json"
-version := "1.0.0"
+version := "1.1.0"
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 javacOptions in (Compile, doc) := Seq("-source", "1.8")
