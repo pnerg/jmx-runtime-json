@@ -10,14 +10,17 @@ But accessing this data over JMX when running the application in a Docker contai
 Most applications however expose a web interface and possibly even health and or meta-information over HTTP.
 
 The use case for this library is to convert JMX internal information into Json format that can be transported as e.g. a
-HTTP response for debugging purposes.
+HTTP response for debugging purposes or just to be logged.
 
 # Usage
 
-The easiest way to produce a Json with all the data supported by the library is to:
+The easiest way to produce a Json with all the data supported by the library is to use the `allInfo()` method.  
+One can choose to get an optional stack trace for every thread by supplying the depth desired to print (three in this
+example).  
+Not providing a depth defaults to 0, i.e. no stack trace at all.
 
 ```
-String json = JMXJsonBuilder.allInfo().prettyPrint();
+String json = JMXJsonBuilder.allInfo(3).prettyPrint();
 ```
 
 This will create a Json like the one below (threads cut for brevity).
@@ -67,7 +70,12 @@ This will create a Json like the one below (threads cut for brevity).
         "blocked-time": -1,
         "waited-count": 564,
         "waited-time": -1,
-        "state": "WAITING"
+        "state": "WAITING",
+        "stack-trace": [
+          "sun.management.ThreadImpl(Native method)",
+          "sun.management.ThreadImpl(ThreadImpl.java:197)",
+          "org.dmonix.jmx.JMXJsonBuilder(JMXJsonBuilder.java:180)"
+        ]
       },
       {
         "name": "Reference Handler",
@@ -76,7 +84,12 @@ This will create a Json like the one below (threads cut for brevity).
         "blocked-time": -1,
         "waited-count": 0,
         "waited-time": -1,
-        "state": "RUNNABLE"
+        "state": "RUNNABLE",
+        "stack-trace": [
+          "java.lang.ref.Reference(Native method)",
+          "java.lang.ref.Reference(Reference.java:241)",
+          "java.lang.ref.Reference$ReferenceHandler(Reference.java:213)"
+        ]
       },
      ...
     ]

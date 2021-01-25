@@ -56,14 +56,34 @@ public class JMXJsonBuilder {
   /**
    * Creates an instance and adds everything supported by this class.
    *
+   * <p>In practice the same as invoking {@link #allInfo(int) allInfo(0)}
+   *
+   * @return The created and populated instance
+   * @see #allInfo(int)
+   */
+  public static JMXJsonBuilder allInfo() {
+    return allInfo(0);
+  }
+
+  /**
+   * Creates an instance and adds everything supported by this class.
+   *
+   * <p>The provided argument decides max depth/size of the stack-trace array on each thread.
+   * Providing 0 will yield a empty stack-trace array.
+   *
    * @return The created and populated instance
    * @see #withClassLoadingInfo()
    * @see #withMemoryInfo()
    * @see #withRuntimeInfo()
-   * @see #withThreadInfo()
+   * @see #withThreadInfo(int)
+   * @since 1.1
    */
-  public static JMXJsonBuilder allInfo() {
-    return apply().withMemoryInfo().withRuntimeInfo().withThreadInfo().withClassLoadingInfo();
+  public static JMXJsonBuilder allInfo(int threadStackDepth) {
+    return apply()
+        .withMemoryInfo()
+        .withRuntimeInfo()
+        .withThreadInfo(threadStackDepth)
+        .withClassLoadingInfo();
   }
 
   /**
@@ -109,7 +129,23 @@ public class JMXJsonBuilder {
   }
 
   /**
-   * Adds runtime information extracted from the 'ThreadMXBean'.
+   * Adds runtime information extracted from the 'ThreadMXBean' without stack trace information.
+   *
+   * <p>In practice the same as invoking {@link #withThreadInfo(int) withThreadInfo(0)}
+   *
+   * @return itself
+   * @see #withThreadInfo(int)
+   */
+  public JMXJsonBuilder withThreadInfo() {
+    return withThreadInfo(5);
+  }
+
+  /**
+   * Adds runtime information extracted from the 'ThreadMXBean' with optional stack trace depth.
+   *
+   * <p>The provided argument decides max depth/size of the stack-trace array on each thread. <br>
+   * Providing 0 will yield a empty stack-trace array. <br>
+   * E.g. invoking {@link #withThreadInfo(int) withThreadInfo(4)}
    *
    * <pre>
    *  "thread": {
@@ -124,21 +160,40 @@ public class JMXJsonBuilder {
    *         "blocked-time": -1,
    *         "waited-count": 665,
    *         "waited-time": -1,
-   *         "state": "WAITING"
+   *         "state": "WAITING",
+   *         "stack-trace": [
+   *           "jdk.internal.misc.Unsafe(Native method)",
+   *           "java.util.concurrent.locks.LockSupport(LockSupport.java:194)",
+   *           "java.util.concurrent.ForkJoinPool(ForkJoinPool.java:1628)",
+   *           "java.util.concurrent.ForkJoinWorkerThread(ForkJoinWorkerThread.java:183)"
+   *         ]
    *       },
    *       ...
-   *       ]
+   *    ]
    * }
    * </pre>
    *
+   * @param stackTraceDepth The max depth/size of the stack-trace array on each thread
    * @return itself
+   * @since 1.1
    */
-  public JMXJsonBuilder withThreadInfo() {
+  public JMXJsonBuilder withThreadInfo(int stackTraceDepth) {
     ThreadMXBean mbean = ManagementFactory.getThreadMXBean();
 
     // create detailed info for each thread
     JsonArray threadArrayJson = Json.array();
-    for (ThreadInfo ti : mbean.getThreadInfo(mbean.getAllThreadIds())) {
+    for (ThreadInfo ti : mbean.getThreadInfo(mbean.getAllThreadIds(), stackTraceDepth)) {
+
+      JsonArray stackArray = Json.array();
+      for (StackTraceElement ste : ti.getStackTrace()) {
+        String line =
+            ste.isNativeMethod()
+                ? String.format("%s(Native method)", ste.getClassName())
+                : String.format(
+                    "%s(%s:%d)", ste.getClassName(), ste.getFileName(), ste.getLineNumber());
+        stackArray.add(line);
+      }
+
       JsonObject to = Json.object();
       to.add("name", ti.getThreadName());
       to.add("id", ti.getThreadId());
@@ -147,6 +202,8 @@ public class JMXJsonBuilder {
       to.add("waited-count", ti.getWaitedCount());
       to.add("waited-time", ti.getWaitedTime());
       to.add("state", ti.getThreadState().name());
+      to.add("stack-trace", stackArray);
+
       threadArrayJson.add(to);
     }
 
@@ -216,6 +273,7 @@ public class JMXJsonBuilder {
     builderJson.add("class-loading", jo);
     return this;
   }
+
   /**
    * Converts the provided memory usage info into a Json object
    *
@@ -243,7 +301,7 @@ public class JMXJsonBuilder {
   /**
    * Returns the built json pretty printed
    *
-   * @return The json
+   * @return The json string
    */
   public String prettyPrint() {
     return builderJson.toString(WriterConfig.PRETTY_PRINT);
@@ -252,7 +310,7 @@ public class JMXJsonBuilder {
   /**
    * Returns the built json plain printed
    *
-   * @return The json
+   * @return The json string
    */
   @Override
   public String toString() {
