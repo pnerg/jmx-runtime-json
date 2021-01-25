@@ -187,12 +187,7 @@ public class JMXJsonBuilder {
 
       JsonArray stackArray = Json.array();
       for (StackTraceElement ste : ti.getStackTrace()) {
-        String line =
-            ste.isNativeMethod()
-                ? String.format("%s(Native method)", ste.getClassName())
-                : String.format(
-                    "%s(%s:%d)", ste.getClassName(), ste.getFileName(), ste.getLineNumber());
-        stackArray.add(line);
+        stackArray.add(asString(ste));
       }
 
       JsonObject to = Json.object();
@@ -273,6 +268,20 @@ public class JMXJsonBuilder {
 
     builderJson.add("class-loading", jo);
     return this;
+  }
+
+  static String asString(StackTraceElement ste) {
+    String fileName = ste.getFileName();
+    int lineNumber = ste.getLineNumber();
+    if (ste.isNativeMethod()) {
+      return String.format("%s.%s(Native method)", ste.getClassName(), ste.getMethodName());
+    } else if (fileName != null && lineNumber >= 0) { // we have both file name and line number
+      return String.format(
+          "%s.%s(%s:%d)", ste.getClassName(), ste.getMethodName(), fileName, lineNumber);
+    } else if (fileName != null) { // we only have file name
+      return String.format("%s.%s(%s)", ste.getClassName(), ste.getMethodName(), fileName);
+    }
+    return String.format("%s.%s(Unknown source)", ste.getClassName(), ste.getMethodName());
   }
 
   /**
