@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1]
+
+Fixed bug with missing file name and line number in the stack trace.
+
+### Added
+
+### Changed
+
+Included the method name in the stack trace.   
+Format is now _{class}.{method}({filename}:{line})_
+
 ## [1.1.0]
 
 Added support for optional stack trace.
