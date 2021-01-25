@@ -72,9 +72,9 @@ This will create a Json like the one below (threads cut for brevity).
         "waited-time": -1,
         "state": "WAITING",
         "stack-trace": [
-          "sun.management.ThreadImpl(Native method)",
-          "sun.management.ThreadImpl(ThreadImpl.java:197)",
-          "org.dmonix.jmx.JMXJsonBuilder(JMXJsonBuilder.java:180)"
+          "jdk.internal.misc.Unsafe.park(Native method)",
+          "java.util.concurrent.locks.LockSupport.park(LockSupport.java:194)",
+          "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2081)"
         ]
       },
       {
@@ -86,9 +86,9 @@ This will create a Json like the one below (threads cut for brevity).
         "waited-time": -1,
         "state": "RUNNABLE",
         "stack-trace": [
-          "java.lang.ref.Reference(Native method)",
-          "java.lang.ref.Reference(Reference.java:241)",
-          "java.lang.ref.Reference$ReferenceHandler(Reference.java:213)"
+          "java.lang.ref.Reference.waitForReferencePendingList(Native method)",
+          "java.lang.ref.Reference.processPendingReferences(Reference.java:241)",
+          "java.lang.ref.Reference$ReferenceHandler.run(Reference.java:213)"
         ]
       },
      ...

@@ -163,6 +163,25 @@ class JMXJsonBuilderSpec extends Specification {
     }
   }
 
+  "StackTraceElement asString" >> {
+    val declaringClass = "org.dmonix.FooClass"
+    val methodName = "execute"
+    val fileName = "JMXBuilderSpec.scala"
+    val lineNumber = 69
+    "with class, file and line number shall return full line" >> {
+      JMXJsonBuilder.asString(new StackTraceElement(declaringClass, methodName, fileName, lineNumber)) === s"$declaringClass.$methodName($fileName:$lineNumber)"
+    }
+    "with class, file and no line number shall return string without line number" >> {
+      JMXJsonBuilder.asString(new StackTraceElement(declaringClass, methodName, fileName, -1)) === s"$declaringClass.$methodName($fileName)"
+    }
+    "with class, no file and no line number shall return line with class name" >> {
+      JMXJsonBuilder.asString(new StackTraceElement(declaringClass, methodName, null, -1)) === s"$declaringClass.$methodName(Unknown source)"
+    }
+    "with native method shall return line with class name" >> {
+      //apparently line.nr -2 counts as native method...hmmm
+      JMXJsonBuilder.asString(new StackTraceElement(declaringClass, methodName, fileName, -2)) === s"$declaringClass.$methodName(Native method)"
+    }
+  }
 
   private def assertRuntimeContents(json: JsonObject): MatchResult[_] = {
     val obj = json.getObject("runtime")
