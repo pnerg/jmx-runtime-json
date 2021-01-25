@@ -13,7 +13,7 @@
  */
 package org.dmonix.jmx
 
-import com.eclipsesource.json.{Json, JsonObject, JsonValue}
+import com.eclipsesource.json.{Json, JsonArray, JsonObject, JsonValue}
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 
@@ -31,12 +31,20 @@ class JMXJsonBuilderSpec extends Specification {
       getNonNull(name).asLong()
     }
 
-    def getString(name: String) = {
+    def getString(name: String): String = {
       getNonNull(name).asString()
     }
 
-    def getObject(name: String) = {
+    def getObject(name: String): JsonObject = {
       getNonNull(name).asObject()
+    }
+
+    def getInt(name: String): Int = {
+      getNonNull(name).asInt()
+    }
+
+    def getArray(name: String): JsonArray = {
+      getNonNull(name).asArray()
     }
 
     def getNonNull(name: String): JsonValue = {
@@ -46,7 +54,7 @@ class JMXJsonBuilderSpec extends Specification {
       }
     }
 
-    def mustHaveAttribute(name: String) = {
+    def mustHaveAttribute(name: String): MatchResult[JsonValue] = {
       json.get(name) must not(beNull)
     }
   }
@@ -117,9 +125,7 @@ class JMXJsonBuilderSpec extends Specification {
     }
   }
 
-  "allInfo with no stack-trace" >> {
-    val builder = JMXJsonBuilder.allInfo()
-
+  "allInfo" >> {
     def assertAllInfo(json: JsonObject): MatchResult[_] = {
       assertMemoryContents(json)
       assertRuntimeContents(json)
@@ -127,36 +133,33 @@ class JMXJsonBuilderSpec extends Specification {
       assertClassLoadingContents(json)
     }
 
-    "must produce a 'asJson' with the expected contents" >> {
-      assertAllInfo(builder.asJson())
-    }
-    "must produce 'toString' with the expected contents" >> {
-      assertAllInfo(builder.toString.parseJson)
-    }
-    "must produce 'prettyPrint' with the expected contents" >> {
-      assertAllInfo(builder.prettyPrint.parseJson)
-    }
-  }
+    "without thread stack info" >> {
+      val builder = JMXJsonBuilder.allInfo()
 
-  "allInfo with stack-trace" >> {
-    val builder = JMXJsonBuilder.allInfo(3)
-
-    def assertAllInfo(json: JsonObject): MatchResult[_] = {
-      assertMemoryContents(json)
-      assertRuntimeContents(json)
-      assertThreadContents(json)
-      assertClassLoadingContents(json)
+      "must produce a 'asJson' with the expected contents" >> {
+        assertAllInfo(builder.asJson())
+      }
+      "must produce 'toString' with the expected contents" >> {
+        assertAllInfo(builder.toString.parseJson)
+      }
+      "must produce 'prettyPrint' with the expected contents" >> {
+        assertAllInfo(builder.prettyPrint.parseJson)
+      }
     }
 
-    "must produce a 'asJson' with the expected contents" >> {
-      assertAllInfo(builder.asJson())
-    }
-    "must produce 'toString' with the expected contents" >> {
-      assertAllInfo(builder.toString.parseJson)
-    }
-    "must produce 'prettyPrint' with the expected contents" >> {
-      println(builder.prettyPrint)
-      assertAllInfo(builder.prettyPrint.parseJson)
+    "with thread stack info" >> {
+      val builder = JMXJsonBuilder.allInfo(3)
+
+      "must produce a 'asJson' with the expected contents" >> {
+        assertAllInfo(builder.asJson())
+      }
+      "must produce 'toString' with the expected contents" >> {
+        assertAllInfo(builder.toString.parseJson)
+      }
+      "must produce 'prettyPrint' with the expected contents" >> {
+        println(builder.prettyPrint)
+        assertAllInfo(builder.prettyPrint.parseJson)
+      }
     }
   }
 
@@ -180,8 +183,9 @@ class JMXJsonBuilderSpec extends Specification {
     obj mustHaveAttribute "threads"
 
     //should be at least a few threads so we check the first one
-    obj.get("threads").asArray().isEmpty must beFalse
-    val thread = obj.get("threads").asArray().get(0).asObject()
+    val threadsJson = obj.getArray("threads")
+    threadsJson.size() === obj.getInt("current-thread-count")
+    val thread = threadsJson.get(0).asObject()
     thread mustHaveAttribute "name"
     thread mustHaveAttribute "id"
     thread mustHaveAttribute "blocked-count"

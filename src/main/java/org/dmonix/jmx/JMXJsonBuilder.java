@@ -71,6 +71,7 @@ public class JMXJsonBuilder {
    * <p>The provided argument decides max depth/size of the stack-trace array on each thread.
    * Providing 0 will yield a empty stack-trace array.
    *
+   * @param stackTraceDepth The max depth/size of the stack-trace array on each thread
    * @return The created and populated instance
    * @see #withClassLoadingInfo()
    * @see #withMemoryInfo()
@@ -78,11 +79,11 @@ public class JMXJsonBuilder {
    * @see #withThreadInfo(int)
    * @since 1.1
    */
-  public static JMXJsonBuilder allInfo(int threadStackDepth) {
+  public static JMXJsonBuilder allInfo(int stackTraceDepth) {
     return apply()
         .withMemoryInfo()
         .withRuntimeInfo()
-        .withThreadInfo(threadStackDepth)
+        .withThreadInfo(stackTraceDepth)
         .withClassLoadingInfo();
   }
 
