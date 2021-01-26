@@ -222,6 +222,11 @@ JMXJsonBuilder.apply().withThreadInfo(0); //disables stack trace
 To enable invoke `ManagementFactory.getThreadMXBean().setThreadContentionMonitoringEnabled(true)`.   
 This may have an impact on the performance so do it with caution.
 
+# Dockerized example
+
+For a full example on the printout from a dockerized Java application refer to the [docker](docker/) submodule.  
+It contains small application that easily be built into a Docker and executed locally.
+
 # Dependencies
 
 This library uses [minimal-json](https://github.com/ralfstx/minimal-json) for managing Json format.  
