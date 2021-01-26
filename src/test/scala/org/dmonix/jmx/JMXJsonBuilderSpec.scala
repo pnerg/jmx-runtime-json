@@ -130,12 +130,26 @@ class JMXJsonBuilderSpec extends Specification {
     }
   }
 
+  "withOperatingSystemInfo" >> {
+    val builder = JMXJsonBuilder.apply().withOperatingSystemInfo()
+    "must produce a 'asJson' with the expected contents" >> {
+      assertOperatingSystemInfo(builder.asJson())
+    }
+    "must produce 'toString' with the expected contents" >> {
+      assertOperatingSystemInfo(builder.toString.parseJson)
+    }
+    "must produce 'prettyPrint' with the expected contents" >> {
+      assertOperatingSystemInfo(builder.prettyPrint.parseJson)
+    }
+  }
+
   "allInfo" >> {
     def assertAllInfo(json: JsonObject): MatchResult[_] = {
       assertMemoryContents(json)
       assertRuntimeContents(json)
       assertThreadContents(json)
       assertClassLoadingContents(json)
+      assertOperatingSystemInfo(json)
     }
 
     "without thread stack info" >> {
@@ -238,6 +252,15 @@ class JMXJsonBuilderSpec extends Specification {
     nonheap mustHaveAttribute "committed"
     nonheap mustHaveAttribute "max"
     nonheap mustHaveAttribute "used"
+  }
+
+  private def assertOperatingSystemInfo(json: JsonObject): MatchResult[_] = {
+    val obj = json.getObject("operating-system")
+    obj mustHaveAttribute "name"
+    obj mustHaveAttribute "architecture"
+    obj mustHaveAttribute "version"
+    obj mustHaveAttribute "available-processors"
+    obj mustHaveAttribute "system-load-average"
   }
 
   private def assertClassLoadingContents(json: JsonObject): MatchResult[_] = {
