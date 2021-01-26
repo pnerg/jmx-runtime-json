@@ -83,7 +83,7 @@ public class JMXJsonBuilder {
   public static JMXJsonBuilder allInfo(int stackTraceDepth) {
     return apply()
         .withOperatingSystemInfo()
-        .withMemoryInfo()
+        .withMemoryInfo(true)
         .withRuntimeInfo()
         .withThreadInfo(stackTraceDepth)
         .withClassLoadingInfo();
@@ -225,7 +225,9 @@ public class JMXJsonBuilder {
   }
 
   /**
-   * Adds runtime information extracted from the 'MemoryMXBean'
+   * Adds runtime information extracted from the 'MemoryMXBean'.
+   *
+   * <p>In practice the same as invoking {@link #withMemoryInfo(boolean) withMemoryInfo(false)}
    *
    * <pre>
    *   "memory": {
@@ -245,13 +247,91 @@ public class JMXJsonBuilder {
    * </pre>
    *
    * @return itself
+   * @see #withMemoryInfo(boolean)
    */
   public JMXJsonBuilder withMemoryInfo() {
+    return withMemoryInfo(false);
+  }
+
+  /**
+   * Adds runtime information extracted from the 'MemoryMXBean'.
+   *
+   * <p>The <i>pool</i> are optional.
+   *
+   * <pre>
+   *   "memory": {
+   *     "heap": {
+   *       "init": 1073741824,
+   *       "committed": 1073741824,
+   *       "max": 17179869184,
+   *       "used": 4194304,
+   *       "pools": [
+   *         {
+   *           "name": "G1 Eden Space",
+   *           "usage": {
+   *             "init": 54525952,
+   *             "committed": 46137344,
+   *             "max": -1,
+   *             "used": 4194304
+   *           },
+   *        ...
+   *       ]
+   *     },
+   *     "non-heap": {
+   *       "init": 7667712,
+   *       "committed": 32374784,
+   *       "max": -1,
+   *       "used": 28859904
+   *       "pools": [
+   *         {
+   *           "name": "CodeHeap 'non-nmethods'",
+   *           "usage": {
+   *             "init": 2555904,
+   *             "committed": 2949120,
+   *             "max": 7598080,
+   *             "used": 2865920
+   *           },
+   *         ...
+   *       ]
+   *     }
+   *   }
+   * </pre>
+   *
+   * @param includeMemoryPools If details on each individual memory pool shall be provided
+   * @return itself
+   * @since 1.2
+   */
+  public JMXJsonBuilder withMemoryInfo(boolean includeMemoryPools) {
     MemoryMXBean mbean = ManagementFactory.getMemoryMXBean();
 
     JsonObject jo = Json.object();
-    jo.add("heap", memoryAsJson(mbean.getHeapMemoryUsage()));
-    jo.add("non-heap", memoryAsJson(mbean.getNonHeapMemoryUsage()));
+    JsonObject heap = memoryAsJson(mbean.getHeapMemoryUsage());
+    JsonObject nonHeap = memoryAsJson(mbean.getNonHeapMemoryUsage());
+
+    if (includeMemoryPools) {
+      JsonArray heapPools = Json.array();
+      JsonArray nonHeapPools = Json.array();
+      ManagementFactory.getMemoryPoolMXBeans().stream()
+          .filter(MemoryPoolMXBean::isValid)
+          .forEach(
+              poolMBean -> {
+                JsonObject poolObject = Json.object();
+                poolObject.add("name", poolMBean.getName());
+                poolObject.add("usage", memoryAsJson(poolMBean.getUsage()));
+                poolObject.add("peak-usage", memoryAsJson(poolMBean.getPeakUsage()));
+
+                // add the json to the correct array
+                if (poolMBean.getType() == MemoryType.HEAP) heapPools.add(poolObject);
+                else nonHeapPools.add(poolObject);
+              });
+
+      heap.add("pools", heapPools);
+      nonHeap.add("pools", nonHeapPools);
+    }
+
+    jo.add("heap", heap);
+    jo.add("non-heap", nonHeap);
+
     builderJson.add("memory", jo);
     return this;
   }
@@ -331,7 +411,7 @@ public class JMXJsonBuilder {
    * @param mem
    * @return
    */
-  private JsonObject memoryAsJson(MemoryUsage mem) {
+  private static JsonObject memoryAsJson(MemoryUsage mem) {
     JsonObject json = Json.object();
     json.add("init", mem.getInit());
     json.add("committed", mem.getCommitted());
