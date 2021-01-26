@@ -171,10 +171,12 @@ JMXJsonBuilder.apply().withClassLoadingInfo();
 
 ## withMemoryInfo
 
-Provides insights into the allocated memory of the JVM, heap as well as off/non-heap (e.g thread stacks)
+Provides insights into the allocated memory of the JVM, heap as well as off/non-heap (e.g thread stacks).     
+Optionally one can get statistics on all memory pools.
 
 ```
-JMXJsonBuilder.apply().withMemoryInfo();
+JMXJsonBuilder.apply().withMemoryInfo(); //defaults to withMemoryInfo(false)
+JMXJsonBuilder.apply().withMemoryInfo(true);
 ```
 
 ## withOperatingSystemInfo
@@ -212,8 +214,8 @@ Apart from providing general counters for threads it also provides insights into
   each thread (0 is default)
 
 ```
-JMXJsonBuilder.apply().withThreadInfo(); //same as withThreadInfo(0)
-JMXJsonBuilder.apply().withThreadInfo(3);
+JMXJsonBuilder.apply().withThreadInfo(); //same as withThreadInfo(3)
+JMXJsonBuilder.apply().withThreadInfo(0); //disables stack trace
 ```
 
 **Note** The blocked/waited time measurements may not be enabled on the JVM.  
