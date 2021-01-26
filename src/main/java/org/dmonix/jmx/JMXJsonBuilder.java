@@ -144,6 +144,9 @@ public class JMXJsonBuilder {
   /**
    * Adds runtime information extracted from the 'ThreadMXBean' with optional stack trace depth.
    *
+   * <p>The blocked/waited time is only measured if the JVM is configured to measure thread
+   * contention time.
+   *
    * <p>The provided argument decides max depth/size of the stack-trace array on each thread. <br>
    * Providing 0 will yield a empty stack-trace array. <br>
    * E.g. invoking {@link #withThreadInfo(int) withThreadInfo(4)}
@@ -153,6 +156,8 @@ public class JMXJsonBuilder {
    *     "current-thread-count": 46,
    *     "daemon-thread-count": 25,
    *     "peak-thread-count": 49,
+   *      "thread-cpu-time-enabled": true,
+   *     "thread-contention-monitoring-enabled": true,
    *     "threads": [
    *       {
    *         "name": "main",
@@ -177,6 +182,8 @@ public class JMXJsonBuilder {
    * @param stackTraceDepth The max depth/size of the stack-trace array on each thread
    * @return itself
    * @since 1.1
+   * @see ThreadMXBean#setThreadCpuTimeEnabled(boolean)
+   * @see ThreadMXBean#setThreadContentionMonitoringEnabled(boolean)
    */
   public JMXJsonBuilder withThreadInfo(int stackTraceDepth) {
     ThreadMXBean mbean = ManagementFactory.getThreadMXBean();
@@ -207,6 +214,8 @@ public class JMXJsonBuilder {
     jo.add("current-thread-count", mbean.getThreadCount());
     jo.add("daemon-thread-count", mbean.getDaemonThreadCount());
     jo.add("peak-thread-count", mbean.getPeakThreadCount());
+    jo.add("thread-cpu-time-enabled", mbean.isThreadCpuTimeEnabled());
+    jo.add("thread-contention-monitoring-enabled", mbean.isThreadContentionMonitoringEnabled());
     jo.add("threads", threadArrayJson);
 
     builderJson.add("thread", jo);

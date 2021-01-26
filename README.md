@@ -76,6 +76,8 @@ This will create a Json like the one below (threads cut for brevity).
     "current-thread-count": 46,
     "daemon-thread-count": 24,
     "peak-thread-count": 46,
+    "thread-cpu-time-enabled": true,
+    "thread-contention-monitoring-enabled": true,
     "threads": [
       {
         "name": "main",

@@ -17,10 +17,15 @@ import com.eclipsesource.json.{Json, JsonArray, JsonObject, JsonValue}
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 
+import java.lang.management.ManagementFactory
+
 /**
  * Tests for ''JMXJsonBuilderSpec''
  */
 class JMXJsonBuilderSpec extends Specification {
+
+  //enables measurement of blocked/waited time of threads
+  ManagementFactory.getThreadMXBean().setThreadContentionMonitoringEnabled(true)
 
   implicit class PimpedString(s: String) {
     def parseJson: JsonObject = Json.parse(s).asObject()
@@ -199,6 +204,8 @@ class JMXJsonBuilderSpec extends Specification {
     obj mustHaveAttribute "current-thread-count"
     obj mustHaveAttribute "daemon-thread-count"
     obj mustHaveAttribute "peak-thread-count"
+    obj mustHaveAttribute "thread-cpu-time-enabled"
+    obj mustHaveAttribute "thread-contention-monitoring-enabled"
     obj mustHaveAttribute "threads"
 
     //should be at least a few threads so we check the first one
