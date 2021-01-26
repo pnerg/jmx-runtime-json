@@ -46,13 +46,48 @@ This will create a Json like the one below (threads cut for brevity).
       "init": 1073741824,
       "committed": 1073741824,
       "max": 1073741824,
-      "used": 286342112
+      "used": 286342112,
+      "pools": [
+         {
+          "name": "G1 Eden Space",
+          "usage": {
+            "init": 54525952,
+            "committed": 46137344,
+            "max": -1,
+            "used": 4194304
+          },
+          "peak-usage": {
+            "init": 54525952,
+            "committed": 671088640,
+            "max": -1,
+            "used": 50331648
+          }
+        },
+        ...
+      ]   
     },
     "non-heap": {
       "init": 2555904,
       "committed": 178573312,
       "max": -1,
-      "used": 164771184
+      "used": 164771184,
+      "pools": [
+       {
+          "name": "CodeHeap 'non-nmethods'",
+          "usage": {
+            "init": 2555904,
+            "committed": 2949120,
+            "max": 7598080,
+            "used": 2866048
+          },
+          "peak-usage": {
+            "init": 2555904,
+            "committed": 2949120,
+            "max": 7598080,
+            "used": 2885248
+          },
+         ...
+      ]          
     }
   },
   "runtime": {

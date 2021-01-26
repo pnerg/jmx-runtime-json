@@ -32,25 +32,15 @@ class JMXJsonBuilderSpec extends Specification {
   }
 
   implicit class PimpedJsonObject(json: JsonObject) {
-    def getLong(name: String) = {
-      getNonNull(name).asLong()
-    }
+    def getLong(name: String) = getNonNull(name).asLong()
 
-    def getString(name: String): String = {
-      getNonNull(name).asString()
-    }
+    def getString(name: String): String = getNonNull(name).asString()
 
-    def getObject(name: String): JsonObject = {
-      getNonNull(name).asObject()
-    }
+    def getObject(name: String): JsonObject = getNonNull(name).asObject()
 
-    def getInt(name: String): Int = {
-      getNonNull(name).asInt()
-    }
+    def getInt(name: String): Int = getNonNull(name).asInt()
 
-    def getArray(name: String): JsonArray = {
-      getNonNull(name).asArray()
-    }
+    def getArray(name: String): JsonArray = getNonNull(name).asArray()
 
     def getNonNull(name: String): JsonValue = {
       Option(json.get(name)) match {
@@ -60,7 +50,7 @@ class JMXJsonBuilderSpec extends Specification {
     }
 
     def mustHaveAttribute(name: String): MatchResult[JsonValue] = {
-      json.get(name) must not(beNull)
+      json.get(name) aka s"missing attribute '$name'" must not(beNull)
     }
   }
 
@@ -105,15 +95,29 @@ class JMXJsonBuilderSpec extends Specification {
   }
 
   "withMemoryInfo" >> {
-    val builder = JMXJsonBuilder.apply().withMemoryInfo()
-    "must produce a 'asJson' with the expected contents" >> {
-      assertMemoryContents(builder.asJson())
+    "without pool information" >> {
+      val builder = JMXJsonBuilder.apply().withMemoryInfo()
+      "must produce a 'asJson' with the expected contents" >> {
+        assertMemoryContents(builder.asJson())
+      }
+      "must produce 'toString' with the expected contents" >> {
+        assertMemoryContents(builder.toString.parseJson)
+      }
+      "must produce 'prettyPrint' with the expected contents" >> {
+        assertMemoryContents(builder.prettyPrint.parseJson)
+      }
     }
-    "must produce 'toString' with the expected contents" >> {
-      assertMemoryContents(builder.toString.parseJson)
-    }
-    "must produce 'prettyPrint' with the expected contents" >> {
-      assertMemoryContents(builder.prettyPrint.parseJson)
+    "with pool information" >> {
+      val builder = JMXJsonBuilder.apply().withMemoryInfo(true)
+      "must produce a 'asJson' with the expected contents" >> {
+        assertMemoryContents(builder.asJson(), true)
+      }
+      "must produce 'toString' with the expected contents" >> {
+        assertMemoryContents(builder.toString.parseJson, true)
+      }
+      "must produce 'prettyPrint' with the expected contents" >> {
+        assertMemoryContents(builder.prettyPrint.parseJson, true)
+      }
     }
   }
 
@@ -132,7 +136,7 @@ class JMXJsonBuilderSpec extends Specification {
 
   "allInfo" >> {
     def assertAllInfo(json: JsonObject): MatchResult[_] = {
-      assertMemoryContents(json)
+      assertMemoryContents(json, true)
       assertRuntimeContents(json)
       assertThreadContents(json)
       assertClassLoadingContents(json)
@@ -222,18 +226,22 @@ class JMXJsonBuilderSpec extends Specification {
     thread mustHaveAttribute "stack-trace"
   }
 
-  private def assertMemoryContents(json: JsonObject): MatchResult[_] = {
+  private def assertMemoryContents(json: JsonObject, expectingPoolInfo: Boolean = false): MatchResult[_] = {
     val obj = json.getObject("memory")
     obj mustHaveAttribute "heap"
     obj mustHaveAttribute "non-heap"
 
     val heap = obj.getObject("heap")
+    if (expectingPoolInfo)
+      heap mustHaveAttribute "pools"
     heap mustHaveAttribute "init"
     heap mustHaveAttribute "committed"
     heap mustHaveAttribute "max"
     heap mustHaveAttribute "used"
 
     val nonheap = obj.getObject("non-heap")
+    if (expectingPoolInfo)
+      nonheap mustHaveAttribute "pools"
     nonheap mustHaveAttribute "init"
     nonheap mustHaveAttribute "committed"
     nonheap mustHaveAttribute "max"
