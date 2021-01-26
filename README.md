@@ -19,6 +19,7 @@ modules'.
 
 * class-loading - `withClassLoadingInfo`
 * memory - `withMemoryInfo`
+* operating-system - `withOperatingSystemInfo`
 * runtime - `withRuntimeInfo`
 * thread - `withThreadInfo`
 
@@ -41,6 +42,13 @@ This will create a Json like the one below (threads cut for brevity).
 
 ```
 {
+  "operating-system": {
+    "name": "Mac OS X",
+    "architecture": "x86_64",
+    "version": "10.16",
+    "available-processors": 16,
+    "system-load-average": 2.81396484375
+  },
   "memory": {
     "heap": {
       "init": 1073741824,
@@ -132,6 +140,14 @@ Provides insights into the allocated memory of the JVM, heap as well as off/non-
 
 ```
 JMXJsonBuilder.apply().withMemoryInfo();
+```
+
+## withOperatingSystemInfo
+
+Adds information on the operating system the JVM runs on.
+
+```
+JMXJsonBuilder.apply().withOperatingSystemInfo();
 ```
 
 ## withRuntimeInfo

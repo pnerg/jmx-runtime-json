@@ -75,12 +75,14 @@ public class JMXJsonBuilder {
    * @return The created and populated instance
    * @see #withClassLoadingInfo()
    * @see #withMemoryInfo()
+   * @see #withOperatingSystemInfo()
    * @see #withRuntimeInfo()
    * @see #withThreadInfo(int)
    * @since 1.1
    */
   public static JMXJsonBuilder allInfo(int stackTraceDepth) {
     return apply()
+        .withOperatingSystemInfo()
         .withMemoryInfo()
         .withRuntimeInfo()
         .withThreadInfo(stackTraceDepth)
@@ -156,7 +158,7 @@ public class JMXJsonBuilder {
    *     "current-thread-count": 46,
    *     "daemon-thread-count": 25,
    *     "peak-thread-count": 49,
-   *      "thread-cpu-time-enabled": true,
+   *     "thread-cpu-time-enabled": true,
    *     "thread-contention-monitoring-enabled": true,
    *     "threads": [
    *       {
@@ -251,6 +253,36 @@ public class JMXJsonBuilder {
     jo.add("heap", memoryAsJson(mbean.getHeapMemoryUsage()));
     jo.add("non-heap", memoryAsJson(mbean.getNonHeapMemoryUsage()));
     builderJson.add("memory", jo);
+    return this;
+  }
+
+  /**
+   * Adds information on the operating system this JVM runs on.
+   *
+   * <pre>
+   *  "operating-system": {
+   *     "name": "Mac OS X",
+   *     "architecture": "x86_64",
+   *     "version": "10.16",
+   *     "available-processors": 16,
+   *     "system-load-average": 2.7890625
+   *   }
+   * </pre>
+   *
+   * @return itself
+   * @since 1.2
+   */
+  public JMXJsonBuilder withOperatingSystemInfo() {
+    OperatingSystemMXBean mbean = ManagementFactory.getOperatingSystemMXBean();
+
+    JsonObject jo = Json.object();
+    jo.add("name", mbean.getName());
+    jo.add("architecture", mbean.getArch());
+    jo.add("version", mbean.getVersion());
+    jo.add("available-processors", mbean.getAvailableProcessors());
+    jo.add("system-load-average", mbean.getSystemLoadAverage());
+    builderJson.add("operating-system", jo);
+
     return this;
   }
 
