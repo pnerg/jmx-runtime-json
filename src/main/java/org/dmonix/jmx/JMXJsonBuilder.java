@@ -56,13 +56,13 @@ public class JMXJsonBuilder {
   /**
    * Creates an instance and adds everything supported by this class.
    *
-   * <p>In practice the same as invoking {@link #allInfo(int) allInfo(0)}
+   * <p>In practice the same as invoking {@link #allInfo(int) allInfo(3)}
    *
    * @return The created and populated instance
    * @see #allInfo(int)
    */
   public static JMXJsonBuilder allInfo() {
-    return allInfo(0);
+    return allInfo(3);
   }
 
   /**
@@ -74,7 +74,7 @@ public class JMXJsonBuilder {
    * @param stackTraceDepth The max depth/size of the stack-trace array on each thread
    * @return The created and populated instance
    * @see #withClassLoadingInfo()
-   * @see #withMemoryInfo()
+   * @see #withMemoryInfo(boolean)
    * @see #withOperatingSystemInfo()
    * @see #withRuntimeInfo()
    * @see #withThreadInfo(int)
@@ -140,7 +140,7 @@ public class JMXJsonBuilder {
    * @see #withThreadInfo(int)
    */
   public JMXJsonBuilder withThreadInfo() {
-    return withThreadInfo(5);
+    return withThreadInfo(0);
   }
 
   /**
@@ -207,7 +207,8 @@ public class JMXJsonBuilder {
       to.add("waited-count", ti.getWaitedCount());
       to.add("waited-time", ti.getWaitedTime());
       to.add("state", ti.getThreadState().name());
-      to.add("stack-trace", stackArray);
+      // don't bother to add the stack array if it's empty
+      if (!stackArray.isEmpty()) to.add("stack-trace", stackArray);
 
       threadArrayJson.add(to);
     }

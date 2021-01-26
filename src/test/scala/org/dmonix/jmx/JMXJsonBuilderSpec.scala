@@ -148,16 +148,16 @@ class JMXJsonBuilderSpec extends Specification {
   }
 
   "allInfo" >> {
-    def assertAllInfo(json: JsonObject): MatchResult[_] = {
+    def assertAllInfo(json: JsonObject, expectingStackInfo: Boolean = false): MatchResult[_] = {
       assertMemoryContents(json, true)
       assertRuntimeContents(json)
-      assertThreadContents(json)
+      assertThreadContents(json, expectingStackInfo)
       assertClassLoadingContents(json)
       assertOperatingSystemInfo(json)
     }
 
     "without thread stack info" >> {
-      val builder = JMXJsonBuilder.allInfo()
+      val builder = JMXJsonBuilder.allInfo(0)
 
       "must produce a 'asJson' with the expected contents" >> {
         assertAllInfo(builder.asJson())
@@ -167,6 +167,20 @@ class JMXJsonBuilderSpec extends Specification {
       }
       "must produce 'prettyPrint' with the expected contents" >> {
         assertAllInfo(builder.prettyPrint.parseJson)
+      }
+    }
+
+    "default size thread stack info" >> {
+      val builder = JMXJsonBuilder.allInfo()
+
+      "must produce a 'asJson' with the expected contents" >> {
+        assertAllInfo(builder.asJson(), true)
+      }
+      "must produce 'toString' with the expected contents" >> {
+        assertAllInfo(builder.toString.parseJson, true)
+      }
+      "must produce 'prettyPrint' with the expected contents" >> {
+        assertAllInfo(builder.prettyPrint.parseJson, true)
       }
     }
 
@@ -174,14 +188,14 @@ class JMXJsonBuilderSpec extends Specification {
       val builder = JMXJsonBuilder.allInfo(3)
 
       "must produce a 'asJson' with the expected contents" >> {
-        assertAllInfo(builder.asJson())
+        assertAllInfo(builder.asJson(), true)
       }
       "must produce 'toString' with the expected contents" >> {
-        assertAllInfo(builder.toString.parseJson)
+        assertAllInfo(builder.toString.parseJson, true)
       }
       "must produce 'prettyPrint' with the expected contents" >> {
         println(builder.prettyPrint)
-        assertAllInfo(builder.prettyPrint.parseJson)
+        assertAllInfo(builder.prettyPrint.parseJson, true)
       }
     }
   }
@@ -217,7 +231,7 @@ class JMXJsonBuilderSpec extends Specification {
     obj mustHaveAttribute "classpath"
   }
 
-  private def assertThreadContents(json: JsonObject): MatchResult[_] = {
+  private def assertThreadContents(json: JsonObject, expectingStackInfo: Boolean = false): MatchResult[_] = {
     val obj = json.getObject("thread")
     obj mustHaveAttribute "current-thread-count"
     obj mustHaveAttribute "daemon-thread-count"
@@ -230,6 +244,8 @@ class JMXJsonBuilderSpec extends Specification {
     val threadsJson = obj.getArray("threads")
     threadsJson.size() === obj.getInt("current-thread-count")
     val thread = threadsJson.get(0).asObject()
+    if (expectingStackInfo)
+      thread mustHaveAttribute "stack-trace"
     thread mustHaveAttribute "name"
     thread mustHaveAttribute "id"
     thread mustHaveAttribute "blocked-count"
@@ -237,7 +253,6 @@ class JMXJsonBuilderSpec extends Specification {
     thread mustHaveAttribute "waited-count"
     thread mustHaveAttribute "waited-time"
     thread mustHaveAttribute "state"
-    thread mustHaveAttribute "stack-trace"
   }
 
   private def assertMemoryContents(json: JsonObject, expectingPoolInfo: Boolean = false): MatchResult[_] = {
