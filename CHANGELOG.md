@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0]
+
+Added support for operating system info and memory pools.
+
+### Added
+
+* `withOperatingSystemInfo` - optional operating system information.
+* `withMemoryInfo(boolean)` - optional memory pool information included in the _memory_ section
+
+### Changed
+
+Changed `allInfo()`
+
+* added `withOperatingSystemInfo`
+* changed to use `withMemoryInfo(true)`
+* changed to use `withThreadInfo(3)`
+
 ## [1.1.1]
 
 Fixed bug with missing file name and line number in the stack trace.
