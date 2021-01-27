@@ -1,6 +1,6 @@
 import sbt.Keys.{javacOptions, scalaVersion}
 
-val componentVersion = "1.1.0"
+val componentVersion = "1.2.0"
 
 publishArtifact := false
 version := componentVersion
