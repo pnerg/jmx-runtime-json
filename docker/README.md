@@ -24,28 +24,28 @@ Note the memory and cpu restrictions as these are enforced by the container.
     "architecture": "amd64",
     "version": "4.19.121-linuxkit",
     "available-processors": 2,
-    "system-load-average": 0.66
+    "system-load-average": 0.32
   },
   "memory": {
     "heap": {
       "init": 8388608,
       "committed": 8126464,
-      "max": 194641920,
-      "used": 1891592,
+      "max": 32440320,
+      "used": 1895440,
       "pools": [
         {
           "name": "Tenured Gen",
           "usage": {
             "init": 5636096,
             "committed": 5636096,
-            "max": 134217728,
-            "used": 649776
+            "max": 22413312,
+            "used": 649608
           },
           "peak-usage": {
             "init": 5636096,
             "committed": 5636096,
-            "max": 134217728,
-            "used": 649776
+            "max": 22413312,
+            "used": 649608
           }
         },
         {
@@ -53,13 +53,13 @@ Note the memory and cpu restrictions as these are enforced by the container.
           "usage": {
             "init": 2228224,
             "committed": 2228224,
-            "max": 53739520,
-            "used": 546160
+            "max": 8912896,
+            "used": 544760
           },
           "peak-usage": {
             "init": 2228224,
             "committed": 2228224,
-            "max": 53739520,
+            "max": 8912896,
             "used": 2228224
           }
         },
@@ -68,13 +68,13 @@ Note the memory and cpu restrictions as these are enforced by the container.
           "usage": {
             "init": 262144,
             "committed": 262144,
-            "max": 6684672,
+            "max": 1114112,
             "used": 262144
           },
           "peak-usage": {
             "init": 262144,
             "committed": 262144,
-            "max": 6684672,
+            "max": 1114112,
             "used": 262144
           }
         }
@@ -84,7 +84,7 @@ Note the memory and cpu restrictions as these are enforced by the container.
       "init": 7667712,
       "committed": 15794176,
       "max": 511705088,
-      "used": 8931584,
+      "used": 8937144,
       "pools": [
         {
           "name": "CodeHeap 'non-nmethods'",
@@ -92,13 +92,13 @@ Note the memory and cpu restrictions as these are enforced by the container.
             "init": 2555904,
             "committed": 2555904,
             "max": 5828608,
-            "used": 1070848
+            "used": 1074048
           },
           "peak-usage": {
             "init": 2555904,
             "committed": 2555904,
             "max": 5828608,
-            "used": 1081984
+            "used": 1085568
           }
         },
         {
@@ -107,13 +107,13 @@ Note the memory and cpu restrictions as these are enforced by the container.
             "init": 0,
             "committed": 7864320,
             "max": 134217728,
-            "used": 7448640
+            "used": 7440960
           },
           "peak-usage": {
             "init": 0,
             "committed": 7864320,
             "max": 134217728,
-            "used": 7448640
+            "used": 7440960
           }
         },
         {
@@ -122,13 +122,13 @@ Note the memory and cpu restrictions as these are enforced by the container.
             "init": 2555904,
             "committed": 2555904,
             "max": 122912768,
-            "used": 465152
+            "used": 474240
           },
           "peak-usage": {
             "init": 2555904,
             "committed": 2555904,
             "max": 122912768,
-            "used": 465152
+            "used": 474240
           }
         },
         {
@@ -152,24 +152,45 @@ Note the memory and cpu restrictions as these are enforced by the container.
             "init": 2555904,
             "committed": 2555904,
             "max": 122916864,
-            "used": 89088
+            "used": 88704
           },
           "peak-usage": {
             "init": 2555904,
             "committed": 2555904,
             "max": 122916864,
-            "used": 89088
+            "used": 88704
           }
         }
       ]
     }
   },
+  "garbage-collectors": [
+    {
+      "name": "Copy",
+      "collection-count": 1,
+      "collection-time": 1,
+      "memory-pool-names": [
+        "Eden Space",
+        "Survivor Space"
+      ]
+    },
+    {
+      "name": "MarkSweepCompact",
+      "collection-count": 0,
+      "collection-time": 0,
+      "memory-pool-names": [
+        "Eden Space",
+        "Survivor Space",
+        "Tenured Gen"
+      ]
+    }
+  ],
   "runtime": {
     "vm-name": "OpenJDK 64-Bit Server VM",
     "vm-vendor": "AdoptOpenJDK",
     "vm-version": "11.0.10+9",
-    "uptime": 232,
-    "start-time": 1611690634363,
+    "uptime": 210,
+    "start-time": 1612361334853,
     "input-arguments": [
       "-Xss256k",
       "-XX:MaxMetaspaceSize=128m",
@@ -201,7 +222,7 @@ Note the memory and cpu restrictions as these are enforced by the container.
         "stack-trace": [
           "sun.management.ThreadImpl.getThreadInfo1(Native method)",
           "sun.management.ThreadImpl.getThreadInfo(ThreadImpl.java:197)",
-          "org.dmonix.jmx.JMXJsonBuilder.withThreadInfo(JMXJsonBuilder.java:195)"
+          "org.dmonix.jmx.JMXJsonBuilder.withThreadInfo(JMXJsonBuilder.java:197)"
         ]
       },
       {
@@ -258,8 +279,8 @@ Note the memory and cpu restrictions as these are enforced by the container.
     ]
   },
   "class-loading": {
-    "loaded-classes": 1057,
-    "total-loaded-classes": 1057,
+    "loaded-classes": 1063,
+    "total-loaded-classes": 1063,
     "unloaded-classes": 0
   }
 }
