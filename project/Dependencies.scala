@@ -16,7 +16,7 @@ object Dependencies extends AutoPlugin {
      * Test dependencies
      * ------------------------------
      */
-    val `specs2-core` = "org.specs2" %% "specs2-core" % "4.10.5"
+    val `specs2-core` = "org.specs2" %% "specs2-core" % "4.10.6"
   }
 
 }
