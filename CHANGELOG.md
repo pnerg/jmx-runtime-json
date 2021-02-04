@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0]
+
+Added support for operating system info and memory pools.
+
+### Added
+
+* `withGarbageCollectionInfo` - optional garbage collection information.
+
+### Changed
+
+Changed `allInfo()`
+
+* added `withGarbageCollectionInfo`
+
 ## [1.2.0]
 
 Added support for operating system info and memory pools.
