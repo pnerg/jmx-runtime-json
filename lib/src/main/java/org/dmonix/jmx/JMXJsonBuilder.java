@@ -74,6 +74,7 @@ public class JMXJsonBuilder {
    * @param stackTraceDepth The max depth/size of the stack-trace array on each thread
    * @return The created and populated instance
    * @see #withClassLoadingInfo()
+   * @see #withGarbageCollectionInfo()
    * @see #withMemoryInfo(boolean)
    * @see #withOperatingSystemInfo()
    * @see #withRuntimeInfo()
@@ -84,6 +85,7 @@ public class JMXJsonBuilder {
     return apply()
         .withOperatingSystemInfo()
         .withMemoryInfo(true)
+        .withGarbageCollectionInfo()
         .withRuntimeInfo()
         .withThreadInfo(stackTraceDepth)
         .withClassLoadingInfo();
@@ -389,6 +391,30 @@ public class JMXJsonBuilder {
     jo.add("unloaded-classes", mbean.getUnloadedClassCount());
 
     builderJson.add("class-loading", jo);
+    return this;
+  }
+
+  /**
+   * Adds garbage collector information extracted from the list 'GarbageCollectorMXBean's.
+   *
+   * @return itself
+   * @since 1.3
+   */
+  public JMXJsonBuilder withGarbageCollectionInfo() {
+
+    JsonArray ja = Json.array();
+    for (GarbageCollectorMXBean mbean : ManagementFactory.getGarbageCollectorMXBeans()) {
+      JsonObject jo = Json.object();
+
+      jo.add("name", mbean.getName());
+      jo.add("collection-count", mbean.getCollectionCount());
+      jo.add("collection-time", mbean.getCollectionTime());
+      jo.add("memory-pool-names", Json.array(mbean.getMemoryPoolNames()));
+
+      ja.add(jo);
+    }
+
+    builderJson.add("garbage-collectors", ja);
     return this;
   }
 

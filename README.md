@@ -21,6 +21,7 @@ The Json is modularised into allowing for a builder pattern approach where one c
 modules'.
 
 * class-loading - `withClassLoadingInfo`
+* garbage-collectors - `withGarbageCollectionInfo`
 * memory - `withMemoryInfo`
 * operating-system - `withOperatingSystemInfo`
 * runtime - `withRuntimeInfo`
@@ -41,7 +42,7 @@ Not providing a depth defaults to zero, i.e. no stack trace at all.
 String json = JMXJsonBuilder.allInfo(3).prettyPrint();
 ```
 
-This will create a Json like the one below (threads cut for brevity).
+This will create a Json like the one below (cut in some places for brevity).
 
 ```
 {
@@ -101,6 +102,19 @@ This will create a Json like the one below (threads cut for brevity).
       ]          
     }
   },
+  "garbage-collectors": [
+    {
+      "name": "G1 Young Generation",
+      "collection-count": 8,
+      "collection-time": 66,
+      "memory-pool-names": [
+        "G1 Eden Space",
+        "G1 Survivor Space",
+        "G1 Old Gen"
+      ]
+    },
+    ...
+  ],
   "runtime": {
     "vm-name": "OpenJDK 64-Bit Server VM",
     "vm-vendor": "AdoptOpenJDK",
@@ -170,6 +184,14 @@ Provides information on the total of all class loaders in the JVM.
 
 ```
 JMXJsonBuilder.apply().withClassLoadingInfo();
+```
+
+## withGarbageCollectionInfo
+
+Provides information on the garbage collectors in the JVM.
+
+```
+JMXJsonBuilder.apply().withGarbageCollectionInfo();
 ```
 
 ## withMemoryInfo

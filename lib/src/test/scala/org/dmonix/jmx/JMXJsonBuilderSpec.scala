@@ -147,6 +147,19 @@ class JMXJsonBuilderSpec extends Specification {
     }
   }
 
+  "withGarbageCollectionInfo" >> {
+    val builder = JMXJsonBuilder.apply().withGarbageCollectionInfo()
+    "must produce a 'asJson' with the expected contents" >> {
+      assertGarbageCollectionContents(builder.asJson())
+    }
+    "must produce 'toString' with the expected contents" >> {
+      assertGarbageCollectionContents(builder.toString.parseJson)
+    }
+    "must produce 'prettyPrint' with the expected contents" >> {
+      assertGarbageCollectionContents(builder.prettyPrint.parseJson)
+    }
+  }
+
   "allInfo" >> {
     def assertAllInfo(json: JsonObject, expectingStackInfo: Boolean = false): MatchResult[_] = {
       assertMemoryContents(json, true)
@@ -154,6 +167,7 @@ class JMXJsonBuilderSpec extends Specification {
       assertThreadContents(json, expectingStackInfo)
       assertClassLoadingContents(json)
       assertOperatingSystemInfo(json)
+      assertGarbageCollectionContents(json)
     }
 
     "without thread stack info" >> {
@@ -291,6 +305,17 @@ class JMXJsonBuilderSpec extends Specification {
     obj mustHaveAttribute "loaded-classes"
     obj mustHaveAttribute "total-loaded-classes"
     obj mustHaveAttribute "unloaded-classes"
+  }
+
+  private def assertGarbageCollectionContents(json: JsonObject): MatchResult[_] = {
+    val array = json.getArray("garbage-collectors")
+
+    //there should at least be one GC
+    val obj = array.get(0).asObject()
+    obj mustHaveAttribute "name"
+    obj mustHaveAttribute "collection-count"
+    obj mustHaveAttribute "collection-time"
+    obj mustHaveAttribute "memory-pool-names"
   }
 
 }
