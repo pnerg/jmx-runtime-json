@@ -1,6 +1,6 @@
 import sbt.Keys.{javacOptions, scalaVersion}
 
-val componentVersion = "1.2.0"
+val componentVersion = "1.3.0"
 
 publishArtifact := false
 version := componentVersion
@@ -44,7 +44,8 @@ val jopts = Seq(
   "-XX:MaxMetaspaceSize=128m",
   "-XX:+CrashOnOutOfMemoryError",
   "-XX:+UseContainerSupport",
-  "-XX:MaxRAMPercentage=75.0"
+  "-XX:MaxRAMPercentage=75.0",
+  "-XshowSettings:vm"
 )
 
 lazy val docker = (project in file("docker"))
