@@ -1,4 +1,6 @@
-![Build & Test](https://github.com/pnerg/jmx-runtime-json/workflows/Build%20&%20Test/badge.svg) [![codecov](https://codecov.io/gh/pnerg/jmx-runtime-json/branch/master/graph/badge.svg?token=O8I3FS7RSI)](https://codecov.io/gh/pnerg/jmx-runtime-json)
+![Build & Test](https://github.com/pnerg/jmx-runtime-json/workflows/Build%20&%20Test/badge.svg)
+[![codecov](https://codecov.io/gh/pnerg/jmx-runtime-json/branch/master/graph/badge.svg?token=O8I3FS7RSI)](https://codecov.io/gh/pnerg/jmx-runtime-json)
+[![Javadoc](http://javadoc-badge.appspot.com/org.dmonix/jmx-runtime-json.svg?label=javadoc)](http://javadoc-badge.appspot.com/org.dmonix/jmx-runtime-json)
 
 JMX Runtime Information As Json
 -------
