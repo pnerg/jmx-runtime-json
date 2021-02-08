@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0]
+
+Added support for various printing options
+
+### Added
+
+* `toString(boolean)` - for choosing compact/pretty-print format with argument
+* `compactPrint` - for compact printouts
+
+### Changed
+
+n/a
+
 ## [1.3.0]
 
 Added support for operating system info and memory pools.

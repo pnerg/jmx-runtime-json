@@ -26,6 +26,7 @@ class JMXJsonBuilderSpec extends Specification {
 
   //enables measurement of blocked/waited time of threads
   ManagementFactory.getThreadMXBean().setThreadContentionMonitoringEnabled(true)
+  type AssertJsonFunction = JsonObject => MatchResult[_]
 
   implicit class PimpedString(s: String) {
     def parseJson: JsonObject = Json.parse(s).asObject()
@@ -54,110 +55,67 @@ class JMXJsonBuilderSpec extends Specification {
     }
   }
 
-  "withRuntime" >> {
-    val builder = JMXJsonBuilder.apply().withRuntimeInfo()
+  private def builderAsserts(builder: JMXJsonBuilder, assertJsonFunc: AssertJsonFunction) = {
     "must produce 'asJson' with the expected contents" >> {
-      assertRuntimeContents(builder.asJson())
+      assertJsonFunc(builder.asJson())
     }
-    "must produce 'toString' with the expected contents" >> {
-      assertRuntimeContents(builder.toString.parseJson)
+    "must produce 'compactPrint()' with the expected contents" >> {
+      assertJsonFunc(builder.compactPrint().parseJson)
+    }
+    "must produce 'toString()' with the expected contents" >> {
+      assertJsonFunc(builder.toString().parseJson)
+    }
+    "must produce 'toString(false)' with the expected contents" >> {
+      assertJsonFunc(builder.toString(false).parseJson)
+    }
+    "must produce 'toString(true)' with the expected contents" >> {
+      assertJsonFunc(builder.toString(true).parseJson)
     }
     "must produce 'prettyPrint' with the expected contents" >> {
-      assertRuntimeContents(builder.prettyPrint.parseJson)
+      assertJsonFunc(builder.prettyPrint().parseJson)
     }
+  }
+
+  "withRuntime" >> {
+    val builder = JMXJsonBuilder.apply().withRuntimeInfo()
+    builderAsserts(builder, assertRuntimeContents)
   }
 
   "withThreadInfo" >> {
     "without thread stack info" >> {
       val builder = JMXJsonBuilder.apply().withThreadInfo()
-      "must produce a 'asJson' with the expected contents" >> {
-        assertThreadContents(builder.asJson())
-      }
-      "must produce 'toString' with the expected contents" >> {
-        assertThreadContents(builder.toString.parseJson)
-      }
-      "must produce 'prettyPrint' with the expected contents" >> {
-        assertThreadContents(builder.prettyPrint.parseJson)
-      }
+      builderAsserts(builder, assertThreadContents(_, false))
     }
     "with thread stack info" >> {
       val builder = JMXJsonBuilder.apply().withThreadInfo(3)
-      "must produce a 'asJson' with the expected contents" >> {
-        assertThreadContents(builder.asJson())
-      }
-      "must produce 'toString' with the expected contents" >> {
-        assertThreadContents(builder.toString.parseJson)
-      }
-      "must produce 'prettyPrint' with the expected contents" >> {
-        assertThreadContents(builder.prettyPrint.parseJson)
-      }
+      builderAsserts(builder, assertThreadContents(_, true))
     }
   }
 
   "withMemoryInfo" >> {
     "without pool information" >> {
       val builder = JMXJsonBuilder.apply().withMemoryInfo()
-      "must produce a 'asJson' with the expected contents" >> {
-        assertMemoryContents(builder.asJson())
-      }
-      "must produce 'toString' with the expected contents" >> {
-        assertMemoryContents(builder.toString.parseJson)
-      }
-      "must produce 'prettyPrint' with the expected contents" >> {
-        assertMemoryContents(builder.prettyPrint.parseJson)
-      }
+      builderAsserts(builder, assertMemoryContents(_, false))
     }
     "with pool information" >> {
       val builder = JMXJsonBuilder.apply().withMemoryInfo(true)
-      "must produce a 'asJson' with the expected contents" >> {
-        assertMemoryContents(builder.asJson(), true)
-      }
-      "must produce 'toString' with the expected contents" >> {
-        assertMemoryContents(builder.toString.parseJson, true)
-      }
-      "must produce 'prettyPrint' with the expected contents" >> {
-        assertMemoryContents(builder.prettyPrint.parseJson, true)
-      }
+      builderAsserts(builder, assertMemoryContents(_, true))
     }
   }
 
   "withClassLoadingInfo" >> {
     val builder = JMXJsonBuilder.apply().withClassLoadingInfo()
-    "must produce a 'asJson' with the expected contents" >> {
-      assertClassLoadingContents(builder.asJson())
-    }
-    "must produce 'toString' with the expected contents" >> {
-      assertClassLoadingContents(builder.toString.parseJson)
-    }
-    "must produce 'prettyPrint' with the expected contents" >> {
-      assertClassLoadingContents(builder.prettyPrint.parseJson)
-    }
+    builderAsserts(builder, assertClassLoadingContents)
   }
 
   "withOperatingSystemInfo" >> {
     val builder = JMXJsonBuilder.apply().withOperatingSystemInfo()
-    "must produce a 'asJson' with the expected contents" >> {
-      assertOperatingSystemInfo(builder.asJson())
-    }
-    "must produce 'toString' with the expected contents" >> {
-      assertOperatingSystemInfo(builder.toString.parseJson)
-    }
-    "must produce 'prettyPrint' with the expected contents" >> {
-      assertOperatingSystemInfo(builder.prettyPrint.parseJson)
-    }
+    builderAsserts(builder, assertOperatingSystemInfo)
   }
 
   "withGarbageCollectionInfo" >> {
     val builder = JMXJsonBuilder.apply().withGarbageCollectionInfo()
-    "must produce a 'asJson' with the expected contents" >> {
-      assertGarbageCollectionContents(builder.asJson())
-    }
-    "must produce 'toString' with the expected contents" >> {
-      assertGarbageCollectionContents(builder.toString.parseJson)
-    }
-    "must produce 'prettyPrint' with the expected contents" >> {
-      assertGarbageCollectionContents(builder.prettyPrint.parseJson)
-    }
+    builderAsserts(builder, assertGarbageCollectionContents)
   }
 
   "allInfo" >> {
@@ -172,45 +130,17 @@ class JMXJsonBuilderSpec extends Specification {
 
     "without thread stack info" >> {
       val builder = JMXJsonBuilder.allInfo(0)
-
-      "must produce a 'asJson' with the expected contents" >> {
-        assertAllInfo(builder.asJson())
-      }
-      "must produce 'toString' with the expected contents" >> {
-        assertAllInfo(builder.toString.parseJson)
-      }
-      "must produce 'prettyPrint' with the expected contents" >> {
-        assertAllInfo(builder.prettyPrint.parseJson)
-      }
+      builderAsserts(builder, assertAllInfo(_, false))
     }
 
     "default size thread stack info" >> {
       val builder = JMXJsonBuilder.allInfo()
-
-      "must produce a 'asJson' with the expected contents" >> {
-        assertAllInfo(builder.asJson(), true)
-      }
-      "must produce 'toString' with the expected contents" >> {
-        assertAllInfo(builder.toString.parseJson, true)
-      }
-      "must produce 'prettyPrint' with the expected contents" >> {
-        assertAllInfo(builder.prettyPrint.parseJson, true)
-      }
+      builderAsserts(builder, assertAllInfo(_, true))
     }
 
     "with thread stack info" >> {
       val builder = JMXJsonBuilder.allInfo(3)
-
-      "must produce a 'asJson' with the expected contents" >> {
-        assertAllInfo(builder.asJson(), true)
-      }
-      "must produce 'toString' with the expected contents" >> {
-        assertAllInfo(builder.toString.parseJson, true)
-      }
-      "must produce 'prettyPrint' with the expected contents" >> {
-        println(builder.prettyPrint)
-        assertAllInfo(builder.prettyPrint.parseJson, true)
-      }
+      builderAsserts(builder, assertAllInfo(_, true))
     }
   }
 
