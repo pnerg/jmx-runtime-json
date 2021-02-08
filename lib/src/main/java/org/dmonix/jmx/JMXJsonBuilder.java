@@ -457,21 +457,51 @@ public class JMXJsonBuilder {
   }
 
   /**
-   * Returns the built json pretty printed
+   * Returns the built json compact printed.
+   *
+   * <p>Same as ´toString(false)'
    *
    * @return The json string
+   * @see #toString(boolean)
+   * @since 1.4.0
+   */
+  public String compactPrint() {
+    return toString(true);
+  }
+
+  /**
+   * Returns the built json pretty printed.
+   *
+   * <p>Same as ´toString(false)'
+   *
+   * @return The json string
+   * @see #toString(boolean)
    */
   public String prettyPrint() {
-    return builderJson.toString(WriterConfig.PRETTY_PRINT);
+    return toString(true);
   }
 
   /**
    * Returns the built json plain printed
    *
+   * <p>Same as ´toString(false)'
+   *
    * @return The json string
+   * @see #toString(boolean)
    */
   @Override
   public String toString() {
-    return builderJson.toString();
+    return toString(false);
+  }
+
+  /**
+   * Returns the built json
+   *
+   * @param prettyPrint If the resulting json string shall be pretty printed or not
+   * @return The json string
+   * @since 1.4.0
+   */
+  public String toString(boolean prettyPrint) {
+    return prettyPrint ? builderJson.toString(WriterConfig.PRETTY_PRINT) : builderJson.toString();
   }
 }

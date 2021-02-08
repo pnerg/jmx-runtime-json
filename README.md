@@ -247,6 +247,20 @@ JMXJsonBuilder.apply().withThreadInfo(0); //disables stack trace
 To enable invoke `ManagementFactory.getThreadMXBean().setThreadContentionMonitoringEnabled(true)`.   
 This may have an impact on the performance so do it with caution.
 
+## Formatting options
+
+The Json printout can be in compact or pretty-printed format.  
+There is a few functions basically with two different results, use the one where the name fit your application.  
+All print related functions invoke the `toString(boolean)` the difference being the value of the argument.
+
+| Function        | Result |
+| ------------- |:-------------:|
+| `compactPrint()`     | compact |
+| `toString()`     | compact |
+| `toString(false)`     | compact |
+| `toString(true)`     | pretty-print |
+| `prettyPrint()`     | pretty-print |
+
 # Dockerized example
 
 For a full example on the printout from a dockerized Java application refer to the [docker](docker/) submodule.  
