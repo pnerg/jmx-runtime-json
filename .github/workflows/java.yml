@@ -11,6 +11,8 @@ jobs:
         run: sbt javafmtCheckAll
       - name: Generate Javadoc
         run: sbt doc
+      - name: Publish locally
+        run: sbt publishLocal
       - name: Run tests & coverage
         run: sbt jacoco
       - name: Upload coverage to Codecov
