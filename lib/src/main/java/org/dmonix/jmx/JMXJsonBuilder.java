@@ -459,7 +459,7 @@ public class JMXJsonBuilder {
   /**
    * Returns the built json compact printed.
    *
-   * <p>Same as ´toString(false)'
+   * <p>Same as 'toString(false)'
    *
    * @return The json string
    * @see #toString(boolean)
@@ -472,7 +472,7 @@ public class JMXJsonBuilder {
   /**
    * Returns the built json pretty printed.
    *
-   * <p>Same as ´toString(false)'
+   * <p>Same as 'toString(true)'
    *
    * @return The json string
    * @see #toString(boolean)
@@ -484,7 +484,7 @@ public class JMXJsonBuilder {
   /**
    * Returns the built json plain printed
    *
-   * <p>Same as ´toString(false)'
+   * <p>Same as 'toString(false)'
    *
    * @return The json string
    * @see #toString(boolean)
