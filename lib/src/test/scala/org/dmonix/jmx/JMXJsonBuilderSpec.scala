@@ -26,13 +26,13 @@ class JMXJsonBuilderSpec extends Specification {
 
   //enables measurement of blocked/waited time of threads
   ManagementFactory.getThreadMXBean().setThreadContentionMonitoringEnabled(true)
-  type AssertJsonFunction = JsonObject => MatchResult[_]
+  private[this] type AssertJsonFunction = JsonObject => MatchResult[_]
 
-  implicit class PimpedString(s: String) {
+  private[this] implicit class PimpedString(s: String) {
     def parseJson: JsonObject = Json.parse(s).asObject()
   }
 
-  implicit class PimpedJsonObject(json: JsonObject) {
+  private[this] implicit class PimpedJsonObject(json: JsonObject) {
     def getLong(name: String) = getNonNull(name).asLong()
 
     def getString(name: String): String = getNonNull(name).asString()
@@ -55,7 +55,7 @@ class JMXJsonBuilderSpec extends Specification {
     }
   }
 
-  private def builderAsserts(builder: JMXJsonBuilder, assertJsonFunc: AssertJsonFunction) = {
+  private[this] def builderAsserts(builder: JMXJsonBuilder, assertJsonFunc: AssertJsonFunction) = {
     "must produce 'asJson' with the expected contents" >> {
       assertJsonFunc(builder.asJson())
     }
@@ -164,7 +164,7 @@ class JMXJsonBuilderSpec extends Specification {
     }
   }
 
-  private def assertRuntimeContents(json: JsonObject): MatchResult[_] = {
+  private[this] def assertRuntimeContents(json: JsonObject): MatchResult[_] = {
     val obj = json.getObject("runtime")
     obj mustHaveAttribute "vm-vendor"
     obj mustHaveAttribute "vm-name"
@@ -175,7 +175,7 @@ class JMXJsonBuilderSpec extends Specification {
     obj mustHaveAttribute "classpath"
   }
 
-  private def assertThreadContents(json: JsonObject, expectingStackInfo: Boolean = false): MatchResult[_] = {
+  private[this] def assertThreadContents(json: JsonObject, expectingStackInfo: Boolean = false): MatchResult[_] = {
     val obj = json.getObject("thread")
     obj mustHaveAttribute "current-thread-count"
     obj mustHaveAttribute "daemon-thread-count"
@@ -199,7 +199,7 @@ class JMXJsonBuilderSpec extends Specification {
     thread mustHaveAttribute "state"
   }
 
-  private def assertMemoryContents(json: JsonObject, expectingPoolInfo: Boolean = false): MatchResult[_] = {
+  private[this] def assertMemoryContents(json: JsonObject, expectingPoolInfo: Boolean = false): MatchResult[_] = {
     val obj = json.getObject("memory")
     obj mustHaveAttribute "heap"
     obj mustHaveAttribute "non-heap"
@@ -221,7 +221,7 @@ class JMXJsonBuilderSpec extends Specification {
     nonheap mustHaveAttribute "used"
   }
 
-  private def assertOperatingSystemInfo(json: JsonObject): MatchResult[_] = {
+  private[this] def assertOperatingSystemInfo(json: JsonObject): MatchResult[_] = {
     val obj = json.getObject("operating-system")
     obj mustHaveAttribute "name"
     obj mustHaveAttribute "architecture"
@@ -230,14 +230,14 @@ class JMXJsonBuilderSpec extends Specification {
     obj mustHaveAttribute "system-load-average"
   }
 
-  private def assertClassLoadingContents(json: JsonObject): MatchResult[_] = {
+  private[this] def assertClassLoadingContents(json: JsonObject): MatchResult[_] = {
     val obj = json.getObject("class-loading")
     obj mustHaveAttribute "loaded-classes"
     obj mustHaveAttribute "total-loaded-classes"
     obj mustHaveAttribute "unloaded-classes"
   }
 
-  private def assertGarbageCollectionContents(json: JsonObject): MatchResult[_] = {
+  private[this] def assertGarbageCollectionContents(json: JsonObject): MatchResult[_] = {
     val array = json.getArray("garbage-collectors")
 
     //there should at least be one GC
