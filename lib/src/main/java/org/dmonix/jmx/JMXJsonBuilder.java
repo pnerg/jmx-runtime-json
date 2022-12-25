@@ -17,7 +17,6 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.WriterConfig;
-
 import java.io.File;
 import java.lang.management.*;
 
